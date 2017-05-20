@@ -1,5 +1,5 @@
 require 'sinatra'
 
 get '/' do
-    "Hello, World!"
+    return 200
 end
