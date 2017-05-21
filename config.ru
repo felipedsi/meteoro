@@ -1,2 +1,2 @@
-require './meteoro'
-run Deployer
+require './test_manager'
+run TestManager
