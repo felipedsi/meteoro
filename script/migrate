@@ -1,0 +1,2 @@
+bundle exec sequel -m migrations/ postgres://felipe:felipe@localhost:5432/felipe
+

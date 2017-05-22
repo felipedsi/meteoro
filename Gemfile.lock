@@ -2,6 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     kgio (2.11.0)
+    pg (0.20.0)
     rack (1.6.8)
     rack-protection (1.5.3)
       rack
@@ -20,10 +21,14 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  pg
   rack
   sequel
   sinatra
   unicorn
 
+RUBY VERSION
+   ruby 2.2.6p396
+
 BUNDLED WITH
-   1.14.6
+   1.15.0
