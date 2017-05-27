@@ -14,7 +14,5 @@ module Sinatra
     def api_token
       ENV['API_TOKEN']
     end
-
-    helpers Authentication
   end
 end
