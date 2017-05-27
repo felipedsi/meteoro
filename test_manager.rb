@@ -1,20 +1,16 @@
 $:.unshift(File.expand_path File.join(File.dirname(__FILE__),'helpers'))
 $:.unshift(File.expand_path File.join(File.dirname(__FILE__),'models'))
+$:.unshift(File.expand_path File.join(File.dirname(__FILE__),'config'))
 
 require 'sinatra'
-require 'sinatra/sequel'
-require 'pg'
+require 'database'
 require 'rack'
 require 'authentication'
+require 'deploy'
+require 'user'
 
 class TestManager < Sinatra::Application
   include Sinatra::Authentication
-
-   configure do
-      set :database, ENV['DATABASE_URL']
-      require 'deploy'
-      require 'user'
-   end
 
   get '/' do
   	authenticate!
