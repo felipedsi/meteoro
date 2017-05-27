@@ -1,8 +1,15 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    bacon (1.2.0)
+    coderay (1.1.1)
     kgio (2.11.0)
+    method_source (0.8.2)
     pg (0.20.0)
+    pry (0.10.4)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
+      slop (~> 3.4)
     rack (1.6.8)
     rack-protection (1.5.3)
       rack
@@ -12,6 +19,11 @@ GEM
       rack (~> 1.5)
       rack-protection (~> 1.4)
       tilt (>= 1.3, < 3)
+    sinatra-sequel (0.9.0)
+      bacon
+      sequel (>= 3.2.0)
+      sinatra (>= 0.9.4)
+    slop (3.6.0)
     tilt (2.0.7)
     unicorn (5.3.0)
       kgio (~> 2.6)
@@ -22,9 +34,10 @@ PLATFORMS
 
 DEPENDENCIES
   pg
+  pry
   rack
-  sequel
   sinatra
+  sinatra-sequel
   unicorn
 
 RUBY VERSION

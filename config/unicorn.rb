@@ -9,8 +9,3 @@ before_fork do |server, worker|
     Process.kill 'QUIT', Process.pid
   end
 end
-
-after_fork do |server, worker|
-  Sequel::Model.db = Sequel.connect(ENV['DATABASE_URL']) if ENV['DATABASE_URL']
-end
-
