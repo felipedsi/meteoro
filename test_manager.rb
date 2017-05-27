@@ -1,6 +1,6 @@
 $:.unshift(File.expand_path File.join(File.dirname(__FILE__),'helpers'))
 $:.unshift(File.expand_path File.join(File.dirname(__FILE__),'models'))
-$:.unshift(File.expand_path File.join(File.dirname(__FILE__),'config'))
+$:.unshift(File.expand_path File.join(File.dirname(__FILE__),'initializers'))
 
 require 'sinatra'
 require 'database'
