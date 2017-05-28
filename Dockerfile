@@ -14,4 +14,3 @@ WORKDIR /usr/src/app
 RUN gem install bundler
 
 CMD ["./script/start"]
-
