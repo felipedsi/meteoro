@@ -56,14 +56,16 @@ class TestManager < Sinatra::Application
   post '/deploys' do
     authenticate_access_token!
 
-    "xunda"
+    return 200
   end
 
   # (access token) - status do deploy pelo id
   get '/deploys/:id' do
+    authenticate_access_token!
   end
 
   # (access token) - ids dos deploys com status, com max_deploys 
   get '/deploys' do
+    authenticate_access_token!
   end
 end
