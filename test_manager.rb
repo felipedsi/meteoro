@@ -32,20 +32,23 @@ class TestManager < Sinatra::Application
     "#{users.to_json}"
   end
 
-  # return access token - acesso restrito pelo API_TOKEN
   post '/users' do
+    authenticate!
+
+    user_name = params[:name]
+    max_deploys = params[:max_deploys]
+
+    AccessControl.create_user(user_name, max_deploys)
+  end
+
+  put '/users/:id' do
     authenticate!
 
     user_id = params[:user_id]
     user_name = params[:name]
     max_deploys = params[:max_deploys]
 
-    AccessControl.upsert_user(user_id, user_name, max_deploys)
-  end
-
-  #  (flag access_token) - update info
-  # - if access_token=true -> return access_token
-  put '/users/:id' do
+    AccessControl.update_user(user_id, user_name, max_deploys)
   end
 
   # (access token) - return id do deploy

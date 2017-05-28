@@ -1,12 +1,4 @@
 class AccessControl
-  def self.upsert_user(user_id, user_name, max_deploys)
-    return create_user(user_name, max_deploys) unless user_id
-
-    update_user(user_id, user_name, max_deploys)
-  end
-
-  private
-
   def self.create_user(user_name, max_deploys)
     user = User.new
 
