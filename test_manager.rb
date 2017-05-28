@@ -14,7 +14,7 @@ class TestManager < Sinatra::Application
 
   helpers do
     def access_token?
-      params[:access_token]
+      params[:access_token] == 'true'
     end
   end
 
@@ -27,7 +27,9 @@ class TestManager < Sinatra::Application
   get '/users' do
     authenticate!
 
+    users = User.all_to_hash(access_token?)
 
+    "#{users.to_json}"
   end
 
   # return access token - acesso restrito pelo API_TOKEN

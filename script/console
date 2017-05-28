@@ -1,0 +1,2 @@
+bundle install && bundle exec irb -r $(pwd)/test_manager.rb
+
