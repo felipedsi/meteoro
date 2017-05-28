@@ -52,11 +52,15 @@ class TestManager < Sinatra::Application
   end
 
   # (access token) - return id do deploy
+  # - args:
+  #   - docker_image (with or without tag)
   # - Validar se ele tem limite disponível
   post '/deploys' do
     authenticate_access_token!
 
-    return 200
+    image = params[:image]
+
+    Deployer.deploy!(image, current_user.id)
   end
 
   # (access token) - status do deploy pelo id
