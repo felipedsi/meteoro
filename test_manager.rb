@@ -54,6 +54,9 @@ class TestManager < Sinatra::Application
   # (access token) - return id do deploy
   # - Validar se ele tem limite disponível
   post '/deploys' do
+    authenticate_access_token!
+
+    "xunda"
   end
 
   # (access token) - status do deploy pelo id
