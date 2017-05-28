@@ -1,7 +1,7 @@
 require 'sequel'
 
-worker_processes 5
-timeout 30000
+worker_processes ENV['WEB_CONCURRENCY'] || 5
+timeout ENV['WEB_TIMEOUT'] || 30000
 preload_app true
 
 before_fork do |server, worker|
