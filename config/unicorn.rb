@@ -1,3 +1,4 @@
+require 'dotenv/load'
 require 'sequel'
 
 worker_processes ENV['WEB_CONCURRENCY'].to_i || 5

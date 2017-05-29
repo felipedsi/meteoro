@@ -2,6 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     coderay (1.1.1)
+    dotenv (2.2.1)
     httparty (0.15.5)
       multi_xml (>= 0.5.2)
     json (2.1.0)
@@ -37,6 +38,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  dotenv
   marathon-api
   pg
   pry

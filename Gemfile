@@ -9,3 +9,5 @@ gem 'rack'
 gem 'unicorn'
 gem 'pg'
 gem 'marathon-api', :require => 'marathon'
+
+gem 'dotenv', groups: [:development, :test]
