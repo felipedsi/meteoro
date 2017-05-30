@@ -1,9 +1,25 @@
 class Deployer
-	def self.deploy!(image, user_id)
+  def self.deploy!(image, user_id)
     raise NoSlotError unless has_slot?(user_id)
 
-    create_deploy(user_id)
+    deploy = create_deploy(user_id)
     ship(image)
+
+    deploy
+  end
+
+  def self.status(deploy_id)
+    deploy = Deploy.where(id: deploy_id).select(:status)
+
+    return nil if deploy.empty?
+
+    deploy.first.real_status
+  end
+
+  def self.all_status
+    Deploy.select(:id, :status).map do |deploy|
+      { id: deploy.id, status: deploy.real_status }
+    end
   end
 
   private
@@ -20,10 +36,12 @@ class Deployer
     deploy.user_id = user_id
     deploy.status = Deploy::RUNNING
     deploy.save
+
+    deploy
   end
 
   def self.ship(image)
-    MarathonClient.new.deploy(image)
+    # MarathonClient.new(image).deploy
   end
 
   class NoSlotError < StandardError

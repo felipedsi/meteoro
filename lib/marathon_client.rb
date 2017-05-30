@@ -10,7 +10,7 @@ class MarathonClient
   end
 
   def deploy
-
+    Marathon.post("{}")
   end
 
   private
@@ -21,7 +21,9 @@ class MarathonClient
 
   def app_config
     {
-
+      "image": image,
+      "cpu": 0.2,
+      "mem": 1024
     }
   end
 end
