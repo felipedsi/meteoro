@@ -36,11 +36,15 @@ class TestManager < Sinatra::Application
     end
 
     def resource_not_found(resource)
-      halt 404, generate_error("RESOURCE_NOT_FOUND", "#{resource} not found\n")
+      halt 404, generate_error("RESOURCE_NOT_FOUND", "#{resource} not found")
     end
 
     def no_remaining_slots
       return 400, generate_error("NO_REMAINING_SLOTS", "No remaining slots to deploy. Maximum is #{current_user.max_deploys}")
+    end
+
+    def app_not_running(deploy_id)
+      return 400, generate_error("APP_NOT_RUNNING", "App for deploy #{deploy_id} is not running")
     end
 
     def generate_error(type, msg)
@@ -113,5 +117,21 @@ class TestManager < Sinatra::Application
     rescue Deployer::NoSlotError
       no_remaining_slots
     end
+  end
+
+  delete '/deploys/:id' do
+    authenticate_access_token!
+
+    deploy_id = params[:id]
+
+    begin
+      Deployer.stop!(deploy_id)
+    rescue Deployer::NotRunningError
+      return app_not_running(deploy_id)
+    rescue Deployer::DeployNotFoundError
+      return resource_not_found("deploy")
+    end
+
+    return 200, { message: "success" }.to_json
   end
 end

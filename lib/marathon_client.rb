@@ -12,11 +12,15 @@ class MarathonClient
     # Marathon::App.new(app_config).start!(true)
   end
 
+  def self.stop_app_by_host(host)
+    # Marathon::App.delete("web-#{host.downcase}")
+  end
+
   private
 
   def app_config
     {
-      "id" => "/web",
+      "id" => "/web-#{host.downcase}",
       "cmd" => nil,
       "cpus" => 0.2,
       "mem" => 1024,

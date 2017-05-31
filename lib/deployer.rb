@@ -8,6 +8,18 @@ class Deployer
     deploy
   end
 
+  def self.stop!(deploy_id)
+    deploy = Deploy.where(id: deploy_id).first
+
+    raise DeployNotFoundError if deploy.nil?
+    raise NotRunningError unless deploy.status == Deploy::RUNNING
+
+    deploy.status = Deploy::DONE
+    deploy.save
+
+    MarathonClient.stop_app_by_host(deploy.host)
+  end
+
   def self.status(deploy_id)
     deploy = Deploy.where(id: deploy_id).select(:status)
 
@@ -47,6 +59,18 @@ class Deployer
 
   class NoSlotError < StandardError
     def initialize(msg="No remaining slots")
+      super(msg)
+    end
+  end
+
+  class NotRunningError < StandardError
+    def initialize(msg="App is not running")
+      super(msg)
+    end
+  end
+
+  class DeployNotFoundError < StandardError
+    def initialize(msg="Deploy does not exist")
       super(msg)
     end
   end
