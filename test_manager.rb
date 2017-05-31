@@ -22,7 +22,7 @@ class TestManager < Sinatra::Application
     end
 
     def missing_params(param)
-      return 422, "Missing param: #{param}"
+      return 422, generate_error("MISSING_PARAM", "Missing param: #{param}")
     end
 
     def payload 
@@ -36,11 +36,15 @@ class TestManager < Sinatra::Application
     end
 
     def resource_not_found(resource)
-      halt 404, "#{resource} not found\n"
+      halt 404, generate_error("RESOURCE_NOT_FOUND", "#{resource} not found\n")
     end
 
     def no_remaining_slots
-      return 422, "No remaining slots to deploy. Maximum is #{current_user.max_deploys}"
+      return 400, generate_error("NO_REMAINING_SLOTS", "No remaining slots to deploy. Maximum is #{current_user.max_deploys}")
+    end
+
+    def generate_error(type, msg)
+      { errors: { type: type, message: msg } }.to_json
     end
   end
 
@@ -48,8 +52,6 @@ class TestManager < Sinatra::Application
     return 200, { ping: 'pong' }.to_json
   end
 
-  # (flag access_token) - return users list (with user_id)
-  # - if access_token=true -> return access_token
   get '/users' do
     authenticate!
 
@@ -77,27 +79,6 @@ class TestManager < Sinatra::Application
     AccessControl.update_user(user_id, user_name, max_deploys)
   end
 
-  # (access token) - return id do deploy
-  # - args:
-  #   - docker_image (with or without tag)
-  # - Validar se ele tem limite disponível
-  post '/deploys' do
-    authenticate_access_token!
-
-    image = payload["image"]
-
-    return missing_params('image') if image.nil?
-
-    begin
-      deploy = Deployer.deploy!(image, current_user.id)
-
-      deploy.values.tap { |v| v[:status] = deploy.real_status }.to_json
-    rescue Deployer::NoSlotError
-      return no_remaining_slots
-    end
-  end
-
-  # (access token) - status do deploy pelo id
   get '/deploys/:id' do
     authenticate_access_token!
 
@@ -108,12 +89,29 @@ class TestManager < Sinatra::Application
     { id: params[:id], status: status }.to_json
   end
 
-  # (access token) - ids dos deploys com status, com max_deploys 
   get '/deploys' do
     authenticate_access_token!
 
     deploy_status = Deployer.all_status
 
     { deploys: deploy_status }.to_json
+  end
+
+  post '/deploys' do
+    authenticate_access_token!
+
+    image = payload["image"]
+    host = payload["host"]
+
+    return missing_params('image') if image.nil?
+    return missing_params('host') if host.nil?
+
+    begin
+      deploy = Deployer.deploy!(image, host, current_user.id)
+
+      deploy.values.tap { |v| v[:status] = deploy.real_status }.to_json
+    rescue Deployer::NoSlotError
+      no_remaining_slots
+    end
   end
 end

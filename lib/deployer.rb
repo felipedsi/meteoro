@@ -1,9 +1,9 @@
 class Deployer
-  def self.deploy!(image, user_id)
+  def self.deploy!(image, host, user_id)
     raise NoSlotError unless has_slot?(user_id)
 
-    deploy = create_deploy(user_id)
-    ship(image)
+    deploy = create_deploy(host, user_id)
+    ship(image, host)
 
     deploy
   end
@@ -17,8 +17,8 @@ class Deployer
   end
 
   def self.all_status
-    Deploy.select(:id, :status).map do |deploy|
-      { id: deploy.id, status: deploy.real_status }
+    Deploy.select(:id, :status, :host).map do |deploy|
+      { id: deploy.id, status: deploy.real_status, host: deploy.host }
     end
   end
 
@@ -31,17 +31,18 @@ class Deployer
     current_deploys < max_deploys
   end
 
-  def self.create_deploy(user_id)
+  def self.create_deploy(host, user_id)
     deploy = Deploy.new
     deploy.user_id = user_id
+    deploy.host = host
     deploy.status = Deploy::RUNNING
     deploy.save
 
     deploy
   end
 
-  def self.ship(image)
-    # MarathonClient.new(image).deploy
+  def self.ship(image, host)
+    MarathonClient.new(image, host).deploy
   end
 
   class NoSlotError < StandardError
