@@ -9,11 +9,11 @@ class MarathonClient
   end
 
   def deploy
-    # Marathon::App.new(app_config).start!(true)
+    Marathon::App.new(app_config).start!(true)
   end
 
   def self.stop_app_by_host(host)
-    # Marathon::App.delete("web-#{host.downcase}")
+    Marathon::App.delete("web-#{host.downcase}")
   end
 
   private
