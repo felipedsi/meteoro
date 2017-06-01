@@ -2,55 +2,55 @@ class Deployer
   def self.deploy!(image, host, user_id)
     raise NoSlotError unless has_slot?(user_id)
 
-    deploy = create_deploy(host, user_id)
+    app = create_app(host, user_id)
     ship(image, host)
 
-    deploy
+    app
   end
 
-  def self.stop!(deploy_id)
-    deploy = Deploy.where(id: deploy_id).first
+  def self.stop!(app_id)
+    app = App.where(id: app_id).first
 
-    raise DeployNotFoundError if deploy.nil?
-    raise NotRunningError unless deploy.status == Deploy::RUNNING
+    raise AppNotFoundError if app.nil?
+    raise NotRunningError unless app.status == App::RUNNING
 
-    deploy.status = Deploy::DONE
-    deploy.save
+    app.status = App::DONE
+    app.save
 
-    MarathonClient.stop_app_by_host(deploy.host)
+    MarathonClient.stop_app_by_host(app.host)
   end
 
-  def self.status(deploy_id)
-    deploy = Deploy.where(id: deploy_id).select(:status)
+  def self.status(app_id)
+    app = App.where(id: app_id).select(:status)
 
-    return nil if deploy.empty?
+    return nil if app.empty?
 
-    deploy.first.real_status
+    app.first.real_status
   end
 
   def self.all_status
-    Deploy.select(:id, :status, :host).map do |deploy|
-      { id: deploy.id, status: deploy.real_status, host: deploy.host }
+    App.select(:id, :status, :host).map do |app|
+      { id: app.id, status: app.real_status, host: app.host }
     end
   end
 
   private
 
   def self.has_slot?(user_id)
-    current_deploys = Deploy.where(status: Deploy::RUNNING).count
-    max_deploys = User.where(id: user_id).select(:max_deploys).first.values[:max_deploys]
+    current_apps = App.where(status: Appp::RUNNING).count
+    max_apps = User.where(id: user_id).select(:max_apps).first.values[:max_apps]
 
-    current_deploys < max_deploys
+    current_apps < max_apps
   end
 
-  def self.create_deploy(host, user_id)
-    deploy = Deploy.new
-    deploy.user_id = user_id
-    deploy.host = host
-    deploy.status = Deploy::RUNNING
-    deploy.save
+  def self.create_app(host, user_id)
+    app = App.new
+    app.user_id = user_id
+    app.host = host
+    app.status = App::RUNNING
+    app.save
 
-    deploy
+    app
   end
 
   def self.ship(image, host)
@@ -69,8 +69,8 @@ class Deployer
     end
   end
 
-  class DeployNotFoundError < StandardError
-    def initialize(msg="Deploy does not exist")
+  class AppNotFoundError < StandardError
+    def initialize(msg="App does not exist")
       super(msg)
     end
   end

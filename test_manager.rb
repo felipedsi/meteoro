@@ -10,7 +10,7 @@ require 'authentication'
 require 'deployer'
 require 'access_control'
 require 'marathon_client'
-require 'deploy'
+require 'app'
 require 'user'
 
 class TestManager < Sinatra::Application
@@ -40,11 +40,11 @@ class TestManager < Sinatra::Application
     end
 
     def no_remaining_slots
-      return 400, generate_error("NO_REMAINING_SLOTS", "No remaining slots to deploy. Maximum is #{current_user.max_deploys}")
+      return 400, generate_error("NO_REMAINING_SLOTS", "No remaining slots to deploy. Maximum is #{current_user.max_apps}")
     end
 
-    def app_not_running(deploy_id)
-      return 400, generate_error("APP_NOT_RUNNING", "App for deploy #{deploy_id} is not running")
+    def app_not_running(app_id)
+      return 400, generate_error("APP_NOT_RUNNING", "App for deploy #{app_id} is not running")
     end
 
     def generate_error(type, msg)
@@ -68,9 +68,9 @@ class TestManager < Sinatra::Application
     authenticate!
 
     user_name = payload['name']
-    max_deploys = payload['max_deploys']
+    max_apps = payload['max_apps']
 
-    user = AccessControl.create_user(user_name, max_deploys)
+    user = AccessControl.create_user(user_name, max_apps)
 
     "#{user.values.to_json}"
   end
@@ -80,30 +80,30 @@ class TestManager < Sinatra::Application
 
     user_id = validate_param(params[:id].to_i, 'id')
     user_name = validate_param(payload['name'], 'name')
-    max_deploys = validate_param(payload['max_deploys'], 'max_deploys')
+    max_apps = validate_param(payload['max_apps'], 'max_apps')
 
-    AccessControl.update_user(user_id, user_name, max_deploys)
+    AccessControl.update_user(user_id, user_name, max_apps)
   end
 
-  get '/deploys/:id' do
+  get '/apps/:id' do
     authenticate_access_token!
 
     status = Deployer.status(params[:id].to_i)
 
-    return resource_not_found('deploy') if status.nil?
+    return resource_not_found('app') if status.nil?
 
     { id: params[:id], status: status }.to_json
   end
 
-  get '/deploys' do
+  get '/apps' do
     authenticate_access_token!
 
-    deploy_status = Deployer.all_status
+    app_status = Deployer.all_status
 
-    { deploys: deploy_status }.to_json
+    { apps: app_status }.to_json
   end
 
-  post '/deploys' do
+  post '/apps' do
     authenticate_access_token!
 
     image = payload["image"]
@@ -113,25 +113,25 @@ class TestManager < Sinatra::Application
     return missing_params('host') if host.nil?
 
     begin
-      deploy = Deployer.deploy!(image, host, current_user.id)
+      app = Deployer.deploy!(image, host, current_user.id)
 
-      deploy.values.tap { |v| v[:status] = deploy.real_status }.to_json
+      app.values.tap { |v| v[:status] = app.real_status }.to_json
     rescue Deployer::NoSlotError
       no_remaining_slots
     end
   end
 
-  delete '/deploys/:id' do
+  delete '/apps/:id' do
     authenticate_access_token!
 
-    deploy_id = params[:id]
+    app_id = params[:id]
 
     begin
-      Deployer.stop!(deploy_id)
+      Deployer.stop!(app_id)
     rescue Deployer::NotRunningError
       return app_not_running(deploy_id)
-    rescue Deployer::DeployNotFoundError
-      return resource_not_found("deploy")
+    rescue Deployer::AppNotFoundError
+      return resource_not_found("app")
     end
 
     return 200, { message: "success" }.to_json
