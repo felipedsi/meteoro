@@ -18,7 +18,7 @@ class TestManager < Sinatra::Application
 
   helpers do
     def access_token?
-      params[:access_token] == 'true'
+      payload['access_token'] == 'true'
     end
 
     def missing_params(param)
@@ -67,8 +67,8 @@ class TestManager < Sinatra::Application
   post '/users' do
     authenticate!
 
-    user_name = payload['name']
-    max_apps = payload['max_apps']
+    user_name = validate_param(payload['name'], 'name')
+    max_apps = validate_param(payload['max_apps'], 'max_apps')
 
     user = AccessControl.create_user(user_name, max_apps)
 
@@ -82,7 +82,9 @@ class TestManager < Sinatra::Application
     user_name = validate_param(payload['name'], 'name')
     max_apps = validate_param(payload['max_apps'], 'max_apps')
 
-    AccessControl.update_user(user_id, user_name, max_apps)
+    user = AccessControl.update_user(user_id, user_name, max_apps)
+
+    "#{user.values.to_json}"
   end
 
   get '/apps/:id' do

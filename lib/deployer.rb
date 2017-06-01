@@ -37,7 +37,7 @@ class Deployer
   private
 
   def self.has_slot?(user_id)
-    current_apps = App.where(status: Appp::RUNNING).count
+    current_apps = App.where(status: App::RUNNING).count
     max_apps = User.where(id: user_id).select(:max_apps).first.values[:max_apps]
 
     current_apps < max_apps

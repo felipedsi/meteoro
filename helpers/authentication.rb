@@ -31,7 +31,7 @@ module Sinatra
     end
 
     def access_token
-      params[:access_token]
+      payload['access_token']
     end
   end
 end
