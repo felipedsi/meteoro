@@ -6,6 +6,8 @@ class MarathonClient
   def initialize(image, host)
     @image = image
     @host = host
+
+    Marathon.url = marathon_url
   end
 
   def deploy
@@ -18,12 +20,16 @@ class MarathonClient
 
   private
 
+  def marathon_url
+    ENV["MARATHON_URL"]
+  end
+
   def app_config
     {
       "id" => "/web-#{host.downcase}",
       "cmd" => nil,
-      "cpus" => 0.2,
-      "mem" => 1024,
+      "cpus" => 0.1,
+      "mem" => 64,
       "disk" => 0,
       "instances" => 1,
       "acceptedResourceRoles" => [

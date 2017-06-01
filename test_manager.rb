@@ -70,7 +70,9 @@ class TestManager < Sinatra::Application
     user_name = payload['name']
     max_deploys = payload['max_deploys']
 
-    AccessControl.create_user(user_name, max_deploys)
+    user = AccessControl.create_user(user_name, max_deploys)
+
+    "#{user.values.to_json}"
   end
 
   put '/users/:id' do
