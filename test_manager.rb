@@ -141,7 +141,7 @@ class TestManager < Sinatra::Application
     begin
       Deployer.stop!(app_id)
     rescue Deployer::NotRunningError
-      return app_not_running(deploy_id)
+      return app_not_running(app_id)
     rescue Deployer::AppNotFoundError
       return resource_not_found("app")
     end
