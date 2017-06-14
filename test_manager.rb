@@ -98,7 +98,7 @@ class TestManager < Sinatra::Application
   get '/apps/:id' do
     authenticate_access_token!
 
-    status = Deployer.status(params[:id].to_i)
+    status = Deployer.status(params[:id].to_i, current_user.id)
 
     return resource_not_found('app') if status.nil?
 
@@ -139,7 +139,7 @@ class TestManager < Sinatra::Application
     app_id = params[:id]
 
     begin
-      Deployer.stop!(app_id)
+      Deployer.stop!(app_id, current_user.id)
     rescue Deployer::NotRunningError
       return app_not_running(app_id)
     rescue Deployer::AppNotFoundError

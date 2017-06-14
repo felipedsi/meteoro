@@ -9,8 +9,8 @@ class Deployer
     app
   end
 
-  def self.stop!(app_id)
-    app = App.where(id: app_id).first
+  def self.stop!(app_id, user_id)
+    app = App.where(user_id: user_id, id: app_id).first
 
     raise AppNotFoundError if app.nil?
     raise NotRunningError unless app.status == App::RUNNING
@@ -21,8 +21,8 @@ class Deployer
     MarathonClient.stop_app_by_host(app.host)
   end
 
-  def self.status(app_id)
-    app = App.where(id: app_id).select(:status)
+  def self.status(app_id, user_id)
+    app = App.where(id: app_id, user_id: user_id).select(:status)
 
     return nil if app.empty?
 
