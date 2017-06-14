@@ -1,6 +1,7 @@
 class Deployer
   def self.deploy!(image, host, user_id)
     raise NoSlotError unless has_slot?(user_id)
+    raise HostInUseError unless host_available?(host)
 
     app = create_app(host, user_id)
     ship(image, host)
@@ -28,8 +29,8 @@ class Deployer
     app.first.real_status
   end
 
-  def self.all_status
-    App.select(:id, :status, :host).map do |app|
+  def self.all_status(user_id)
+    App.where(user_id: user_id).select(:id, :status, :host).map do |app|
       { id: app.id, status: app.real_status, host: app.host }
     end
   end
@@ -37,10 +38,14 @@ class Deployer
   private
 
   def self.has_slot?(user_id)
-    current_apps = App.where(status: App::RUNNING).count
+    current_apps = App.where(user_id: user_id, status: App::RUNNING).count
     max_apps = User.where(id: user_id).select(:max_apps).first.values[:max_apps]
 
     current_apps < max_apps
+  end
+
+  def self.host_available?(host)
+    App.where(status: App::RUNNING, host: host).empty?
   end
 
   def self.create_app(host, user_id)
@@ -59,6 +64,12 @@ class Deployer
 
   class NoSlotError < StandardError
     def initialize(msg="No remaining slots")
+      super(msg)
+    end
+  end
+
+  class HostInUseError < StandardError
+    def initialize(msg="App with this host already running")
       super(msg)
     end
   end

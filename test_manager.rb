@@ -18,7 +18,11 @@ class TestManager < Sinatra::Application
 
   helpers do
     def access_token?
-      payload['access_token'] == 'true'
+      access_token == 'true'
+    end
+
+    def access_token
+      params['access_token'] || payload['access_token']
     end
 
     def missing_params(param)
@@ -41,6 +45,10 @@ class TestManager < Sinatra::Application
 
     def no_remaining_slots
       return 400, generate_error("NO_REMAINING_SLOTS", "No remaining slots to deploy. Maximum is #{current_user.max_apps}")
+    end
+
+    def host_in_use(host)
+      return 400, generate_error("HOST_IN_USE", "There is already an app running with provided host: #{host}")
     end
 
     def app_not_running(app_id)
@@ -79,8 +87,8 @@ class TestManager < Sinatra::Application
     authenticate!
 
     user_id = validate_param(params[:id].to_i, 'id')
-    user_name = validate_param(payload['name'], 'name')
-    max_apps = validate_param(payload['max_apps'], 'max_apps')
+    user_name = payload['name']
+    max_apps = payload['max_apps']
 
     user = AccessControl.update_user(user_id, user_name, max_apps)
 
@@ -100,7 +108,7 @@ class TestManager < Sinatra::Application
   get '/apps' do
     authenticate_access_token!
 
-    app_status = Deployer.all_status
+    app_status = Deployer.all_status(current_user.id)
 
     { apps: app_status }.to_json
   end
@@ -120,6 +128,8 @@ class TestManager < Sinatra::Application
       app.values.tap { |v| v[:status] = app.real_status }.to_json
     rescue Deployer::NoSlotError
       no_remaining_slots
+    rescue Deployer::HostInUseError
+      host_in_use(host)
     end
   end
 

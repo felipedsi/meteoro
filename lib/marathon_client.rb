@@ -7,7 +7,7 @@ class MarathonClient
     @image = image
     @host = host
 
-    Marathon.url = marathon_url
+    Marathon.url = MarathonClient.marathon_url
   end
 
   def deploy
@@ -15,12 +15,14 @@ class MarathonClient
   end
 
   def self.stop_app_by_host(host)
+    Marathon.url = MarathonClient.marathon_url
+
     Marathon::App.delete("web-#{host.downcase}")
   end
 
   private
 
-  def marathon_url
+  def self.marathon_url
     ENV["MARATHON_URL"]
   end
 
